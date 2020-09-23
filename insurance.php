@@ -15,6 +15,7 @@
 
     $value = $tax = $installments = "";
 
+    // Validate Form Data With PHP
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $value = test_input($_POST["value"]);
       $tax = test_input($_POST["tax"]);
@@ -29,10 +30,19 @@
       return $data;
     }
 
+    // Set session date and time
+    session_start();
+    if (!array_key_exists("timestamp", $_SESSION)) {
+      $_SESSION["timestamp"] = date('l jS \of F Y \a\t H:i:s');
+    }
+
     ?>
 
     <br>
     <h2>Car insurance calculator</h2>
+    <br>
+    <p><small>⏱ You started visiting this page since <?=$_SESSION["timestamp"];?></small></p>
+    <br>
     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
       Estimated value of the car (100 - 100 000 EUR): <input type="number" name="value" required="required" min="100" max="100000" step="100">
       <br><br>
@@ -52,9 +62,19 @@
     echo "Number of instalments: " . $installments;
     ?>
 
+    <!-- Reset input data -->
     <br><br>
+    <form method="post">
+      <button name="reset">Reset</button>
+    </form>
+    <a><?php
+        if (isset($_POST["reset"])) {
+          session_unset();
+          session_destroy();
+        }
+        ?></a>
 
-
+    <br><br>
     <table class="table">
       <thead class="thead-light">
         <tr>
@@ -84,7 +104,7 @@
         <?php } ?>
       </tr>
       <tr>
-        <td>Tax (<?=$tax?>%)</td>
+        <td>Tax (<?= $tax ?>%)</td>
         <td><?= number_format($value * 0.11 * $tax / 100, 2); ?></td>
         <?php for ($i = 1; $i <= $installments; $i++) { ?>
           <td><?= number_format($value * 0.11 * $tax / 100 / $installments, 2); ?></td>
